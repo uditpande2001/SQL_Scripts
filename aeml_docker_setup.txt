@@ -1,0 +1,22 @@
+docker run -d --restart unless-stopped --name emqx -p 1883:1883 -p 8083:8083 -p 8084:8084 -p 8883:8883 -p 18083:18083 -v emqx:/opt/emqx emqx/emqx:5.0.25
+
+docker run -d --restart unless-stopped --name timescaledb -p 5432:5432 -v timescaledb:/home/postgres/pgdata/data -e POSTGRES_PASSWORD=probus@220706 timescale/timescaledb-ha:pg14-latest
+
+docker run -d --restart unless-stopped --name zkpr -p 2181:2181 -p 2888:2888 -p 3888:3888 -v /workspace/docker-data/zookeeper/data:/data/ -v /workspace/docker-data/zookeeper/datalog:/datalog/ -e ZOO_MY_ID=1 probusdev/zookeeper:latest
+
+docker run -d --restart unless-stopped --name kafka -p 9092:9092 -p 29092:29092 --add-host=host.docker.internal:host-gateway -e KAFKA_BROKER_ID=1 -e KAFKA_ZOOKEEPER_CONNECT=host.docker.internal:2181 -e KAFKA_LOG_RETENTION_HOURS=120 -e KAFKA_AUTO_CREATE_TOPICS_ENABLE=false -e KAFKA_DELETE_TOPIC_ENABLE=true -e KAFKA_ALLOW_PLAINTEXT_LISTENER=yes -e KAFKA_LISTENERS=PLAINTEXT://:29092,PLAINTEXT_HOST://:9092 -e KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://host.docker.internal:29092,PLAINTEXT_HOST://127.0.0.1:9092 -e KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT wurstmeister/kafka
+
+bin/kafka-topics.sh --create --topic test --bootstrap-server localhost:9092
+bin/kafka-topics.sh --describe --topic test --bootstrap-server localhost:9092
+bin/kafka-console-producer.sh --topic test --bootstrap-server localhost:9092
+bin/kafka-console-consumer.sh --topic test --from-beginning --bootstrap-server localhost:9092
+bin/kafka-topics.sh --list --zookeeper localhost:2181
+bin/kafka-topics.sh --list  --bootstrap-server localhost:9092
+bin/kafka-topics.sh --create --topic raw-sensor-data --bootstrap-server localhost:9092
+bin/kafka-topics.sh --list  --bootstrap-server localhost:9092
+bin/kafka-topics.sh --create --topic packet-loss --bootstrap-server localhost:9092
+bin/kafka-topics.sh --create --topic command-response --bootstrap-server localhost:9092
+bin/kafka-topics.sh --create --topic node-init-response --bootstrap-server localhost:9092
+bin/kafka-topics.sh --create --topic dcu-health-data --bootstrap-server localhost:9092
+bin/kafka-topics.sh --list  --bootstrap-server localhost:9092
+
